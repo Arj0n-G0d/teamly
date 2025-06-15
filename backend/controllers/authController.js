@@ -1,5 +1,5 @@
 import User from "../models/User.js";
-import bcrypt, {hash} from "bcryptjs";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 //  Generate JWT
@@ -13,23 +13,32 @@ const registerUser = async (req, res) => {
         const { name, email, password, profileImageUrl, adminInviteToken } = req.body;
         if(!name || !email || !password) return res.status(400).json({ message: "Required fields missing" });
 
+        // Check for existing Eser
         const existingUser = await User.findOne({ email }, null, null);
-        if(existingUser) return res.status(400).json({ message: "User already exists" });
+        if(existingUser) return res.status(409).json({ message: "User already exists" });
 
+        // Deciding User role
         let role = "Member";
         if(adminInviteToken === process.env.ADMIN_INVITE_TOKEN) role = "Admin";
 
+        // Hashing Password
         const hashedPass = await bcrypt.hash(password, 10);
-        const user = new User({
+
+        // Create a new User
+        let user;
+        user = new User({
             name, email, password: hashedPass, role, profileImageUrl
         });
         await user.save();
 
+        // Return User data with JWT
         res.status(201).json({
+            id: user._id,
             name: user.name,
             email: user.email,
             role: user.role,
-            profileImageUrl: user.profileImageUrl
+            profileImageUrl: user.profileImageUrl,
+            token: generateToken(user._id)
         });
 
     } catch (error) {
@@ -42,7 +51,27 @@ const registerUser = async (req, res) => {
 // @access: Public
 const loginUser = async (req, res) => {
     try {
+        const { email, password } = req.body;
+        if(!email || !password) return res.status(400).json({ message: "Required fields missing" });
 
+        // Get existing User (If exists)
+        let user;
+        user = await User.findOne({ email }, null, null);
+        if(!user) return res.status(401).json({ message: "Invalid email or password" });
+
+        // Password Matching
+        const isMatched = await bcrypt.compare(password, user.password);
+        if(!isMatched) return res.status(401).json({ message: "Invalid email or password" });
+
+        // Return User data with JWT
+        res.status(201).json({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profileImageUrl: user.profileImageUrl,
+            token: generateToken(user._id)
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
