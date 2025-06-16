@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -25,8 +27,7 @@ const registerUser = async (req, res) => {
         const hashedPass = await bcrypt.hash(password, 10);
 
         // Create a new User
-        let user;
-        user = new User({
+        const user = new User({
             name, email, password: hashedPass, role, profileImageUrl
         });
         await user.save();
@@ -55,8 +56,7 @@ const loginUser = async (req, res) => {
         if(!email || !password) return res.status(400).json({ message: "Required fields missing" });
 
         // Get existing User (If exists)
-        let user;
-        user = await User.findOne({ email }, null, null);
+        const user = await User.findOne({ email }, null, null);
         if(!user) return res.status(401).json({ message: "Invalid email or password" });
 
         // Password Matching
@@ -82,7 +82,9 @@ const loginUser = async (req, res) => {
 // @access: Private (Requires JWT)
 const getUserProfile = async (req, res) => {
     try {
+        const user = await User.findById(req.userId, null, null).select("-password");
 
+        res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
@@ -93,10 +95,38 @@ const getUserProfile = async (req, res) => {
 // @access: Private (Requires JWT)
 const updateUserProfile = async (req, res) => {
     try {
+        const { name, email, password, profileImageUrl } = req.body;
 
+        const user = await User.findById(req.userId, null, null);
+
+        if(name) user.name = name;
+        if(email) user.email = email;
+        if(password) user.password = await bcrypt.hash(password, 10);
+        if(profileImageUrl) user.profileImageUrl = profileImageUrl;
+
+        let updatedUser;
+        updatedUser = await user.save();
+
+        res.status(201).json({
+            id: updatedUser._id,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            profileImageUrl: updatedUser.profileImageUrl,
+            token: generateToken(updatedUser._id)
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
 };
 
-export { registerUser, loginUser, getUserProfile, updateUserProfile };
+// @desc: Handle image upload
+// @route: POST /api/auth/image-upload
+// @access: Public
+const handleImageUpload = (req, res) => {
+    if(!req.file) return res.status(400).json({message: "No image uploaded"});
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    res.status(200).json({imageUrl});
+};
+
+export { registerUser, loginUser, getUserProfile, updateUserProfile, handleImageUpload };

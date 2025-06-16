@@ -7,10 +7,11 @@ const protect = async (req, res, next) => {
         if(token?.startsWith("Bearer")) {
             token = token.split(" ")[1]; // Extracting Token
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-            const user = await User.findById(decodedToken.id, null, null).select("-password");
+            const id = decodedToken.id;
+            const user = await User.findById(id, null, null).select("-password");
             if(!user) return res.status(404).json({ message: "User not found" });
-            req.user = user;
+
+            req.userId = id;
 
             next();
         }
