@@ -6,6 +6,8 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 
 import authRouter from "./routes/authRoutes.js";
+import userRouter from "./routes/userRoutes.js";
+import taskRouter from "./routes/taskRoutes.js";
 
 const app = express();
 
@@ -25,8 +27,8 @@ await connectDB();
 
 //  Routes
 app.use("/api/auth", authRouter);
-// app.use("/api/users", userRouter);
-// app.use("/api/tasks", taskRouter);
+app.use("/api/users", userRouter);
+app.use("/api/tasks", taskRouter);
 // app.use("/api/reports", reportRouter);
 
 // Start Server

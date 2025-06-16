@@ -3,17 +3,42 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import joi from "joi";
 
 //  Generate JWT
 const generateToken = (userId) => jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-// @desc: Register new User
-// @route: POST /api/auth/register
-// @access: Public
+// User Joi Schemas
+const userRegisterSchema = joi.object({
+    name: joi.string().min(2).required(),
+    email: joi.string().email().required(),
+    password: joi.string().min(8).required(),
+    profileImageUrl: joi.string().default("").allow(""),
+    adminInviteToken: joi.string()
+});
+
+const userLoginSchema = joi.object({
+    email: joi.string().email().required(),
+    password: joi.string().min(8).required()
+});
+
+const userUpdateSchema = joi.object({
+    name: joi.string().min(2),
+    email: joi.string().email(),
+    password: joi.string().min(8),
+    profileImageUrl: joi.string().allow("")
+});
+
+// @desc Register new User
+// @route POST /api/auth/register
+// @access Public
 const registerUser = async (req, res) => {
     try {
-        const { name, email, password, profileImageUrl, adminInviteToken } = req.body;
-        if(!name || !email || !password) return res.status(400).json({ message: "Required fields missing" });
+        if(!req.body) return res.status(400).json({ message: "No body sent" });
+
+        const { error, value } = userRegisterSchema.validate(req.body);
+        if(error) return res.status(400).json({ message: "Validation failed", error });
+        const { name, email, password, profileImageUrl, adminInviteToken } = value;
 
         // Check for existing Eser
         const existingUser = await User.findOne({ email }, null, null);
@@ -47,13 +72,16 @@ const registerUser = async (req, res) => {
     }
 };
 
-// @desc: Login User
-// @route: POST /api/auth/login
-// @access: Public
+// @desc Login User
+// @route POST /api/auth/login
+// @access Public
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        if(!email || !password) return res.status(400).json({ message: "Required fields missing" });
+        if(!req.body) return res.status(400).json({ message: "No body sent" });
+
+        const { error, value } = userLoginSchema.validate(req.body);
+        if(error) return res.status(400).json({ message: "Validation failed", error });
+        const { email, password } = value;
 
         // Get existing User (If exists)
         const user = await User.findOne({ email }, null, null);
@@ -77,9 +105,9 @@ const loginUser = async (req, res) => {
     }
 };
 
-// @desc: Get User profile
-// @route: GET /api/auth/profile
-// @access: Private (Requires JWT)
+// @desc Get User profile
+// @route GET /api/auth/profile
+// @access Private (Requires JWT)
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.userId, null, null).select("-password");
@@ -90,12 +118,16 @@ const getUserProfile = async (req, res) => {
     }
 };
 
-// @desc: Update User profile
-// @route: PUT /api/auth/profile
-// @access: Private (Requires JWT)
+// @desc Update User profile
+// @route PUT /api/auth/profile
+// @access Private (Requires JWT)
 const updateUserProfile = async (req, res) => {
     try {
-        const { name, email, password, profileImageUrl } = req.body;
+        if(!req.body) return res.status(400).json({ message: "No body sent" });
+
+        const { error, value } = userUpdateSchema.validate(req.body);
+        if(error) return res.status(400).json({ message: "Validation failed", error });
+        const { name, email, password, profileImageUrl } = value;
 
         const user = await User.findById(req.userId, null, null);
 
@@ -104,8 +136,7 @@ const updateUserProfile = async (req, res) => {
         if(password) user.password = await bcrypt.hash(password, 10);
         if(profileImageUrl) user.profileImageUrl = profileImageUrl;
 
-        let updatedUser;
-        updatedUser = await user.save();
+        let updatedUser = await user.save();
 
         res.status(201).json({
             id: updatedUser._id,
@@ -120,9 +151,9 @@ const updateUserProfile = async (req, res) => {
     }
 };
 
-// @desc: Handle image upload
-// @route: POST /api/auth/image-upload
-// @access: Public
+// @desc Handle image upload
+// @route POST /api/auth/image-upload
+// @access Public
 const handleImageUpload = (req, res) => {
     if(!req.file) return res.status(400).json({message: "No image uploaded"});
     const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;

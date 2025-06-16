@@ -7,11 +7,11 @@ const protect = async (req, res, next) => {
         if(token?.startsWith("Bearer")) {
             token = token.split(" ")[1]; // Extracting Token
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-            const id = decodedToken.id;
-            const user = await User.findById(id, null, null).select("-password");
+            const user = await User.findById(decodedToken.id, null, null).select("-password");
             if(!user) return res.status(404).json({ message: "User not found" });
 
-            req.userId = id;
+            req.userId = user._id;
+            req.userRole = user.role;
 
             next();
         }
@@ -22,7 +22,7 @@ const protect = async (req, res, next) => {
 };
 
 const adminOnly = async (req, res, next) => {
-    if(req.user?.role === "Admin") next();
+    if(req.userRole === "Admin") next();
     else res.status(403).json({ message: "Access denied, Admin only" });
 }
 
