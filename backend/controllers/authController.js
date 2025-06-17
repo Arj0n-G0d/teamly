@@ -92,7 +92,7 @@ const loginUser = async (req, res) => {
         if(!isMatched) return res.status(401).json({ message: "Invalid email or password" });
 
         // Return User data with JWT
-        res.status(201).json({
+        res.status(200).json({
             id: user._id,
             name: user.name,
             email: user.email,
@@ -138,7 +138,7 @@ const updateUserProfile = async (req, res) => {
 
         let updatedUser = await user.save();
 
-        res.status(201).json({
+        res.status(200).json({
             id: updatedUser._id,
             name: updatedUser.name,
             email: updatedUser.email,

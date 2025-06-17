@@ -14,7 +14,7 @@ import {
 
 const taskRouter = express.Router();
 
-taskRouter.get("/dashboard-data", protect, getDashboardData);
+taskRouter.get("/dashboard-data", protect, adminOnly, getDashboardData);
 taskRouter.get("/user-dashboard-data", protect, getUserDashboardData);
 
 taskRouter.post("/", protect, createTask);
