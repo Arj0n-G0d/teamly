@@ -2,7 +2,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1368EC;
+  /*--color-primary: #1368EC;*/
+  --color-primary: #3300DC;
   --breakpoint-3xl: 1920px;
   --font-display: 'Poppins';
 }
@@ -15,4 +16,16 @@
     background-color: #fcfbfc;
     overflow-x: hidden;
   }
+}
+
+html {
+  font-size: 20px;
+}
+
+.input-box {
+  @apply w-full flex justify-between gap-3 text-sm text-black bg-slate-100/50 rounded-2xl px-4 py-3 mb-4 mt-3 border border-slate-200 outline-none;
+}
+
+.btn-primary {
+  @apply w-full text-sm font-medium text-white bg-primary shadow-lg shadow-purple-600/5 p-[10px] rounded-md my-1 hover:bg-blue-600/15 hover:text-blue-600 cursor-pointer;
 }
