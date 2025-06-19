@@ -3,7 +3,9 @@ import { useState } from "react";
 import { validateEmail } from "../../utils/helper.js";
 import ProfilePhotoSelector from "../../components/inputs/ProfilePhotoSelector.jsx";
 import Input from "../../components/inputs/Input.jsx";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance.js";
+import { API_PATHS } from "../../utils/apiPaths.js";
 
 const SignUp = () => {
     const [profilePic, setProfilePic] = useState(null);
@@ -13,17 +15,56 @@ const SignUp = () => {
     const [adminInviteToken, setAdminInvite] = useState("");
 
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const navigate = useNavigate();
+
+    const handleAdminInviteCodeRequest = async (e) => {
+        e.preventDefault();
+
+        setError("");
+        setSuccess("");
+
+        if(!email || !validateEmail(email)) return setError("Please enter a valid email address");
+        try {
+            await axiosInstance.post(API_PATHS.AUTH.GEN_ADMIN_INVITE_TOKEN, { email });
+            setSuccess("Admin Invite Token successfully sent");
+        } catch(error) {
+            if(error.response && error.response.data.message) setError(error.response.data.message);
+            else setError("Something went wrong");
+        }
+    };
 
     const handleSignUp = async (e) => {
         e.preventDefault();
+
+        setError("");
+        setSuccess("");
 
         if(!fullName) return setError("Please enter full name");
         if(!validateEmail(email)) return setError("Please enter a valid email address");
         if(!password) return setError("Please enter the password");
 
-        setError("");
-
         // Sign-Up API Call
+        try {
+            const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+                name: fullName,
+                email,
+                password,
+                adminInviteToken
+            });
+
+            const { token, role } = response.data;
+
+            if(token) localStorage.setItem("token", token);
+
+            // Redirect based on Role
+            if(role === "Admin") navigate("/admin/dashboard");
+            else navigate("/user/dashboard");
+        } catch(error) {
+            if(error.response && error.response.data.message) setError(error.response.data.message);
+            else setError("Something went wrong");
+        }
     };
 
     return <AuthLayout>
@@ -35,7 +76,7 @@ const SignUp = () => {
 
             <form onSubmit={ handleSignUp } className="mb-10">
                 <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                     <Input
                         value={ fullName }
                         onChange={({ target }) => setFullName(target.value)}
@@ -60,12 +101,14 @@ const SignUp = () => {
                     <Input
                         value={ adminInviteToken }
                         onChange={ ({ target }) => setAdminInvite(target.value) }
-                        placeholder={ "8 Digit Code" }
+                        placeholder={ "Admin Invite Code" }
                         type={ "text" }
-                        label={ "Admin Invite Token" }
+                        label={ "Leading a Team ? " }
+                        link={ <Link className="font-medium text-primary" to={ "" } onClick={ handleAdminInviteCodeRequest }>Get Admin Invite Code</Link> }
                     />
                 </div>
                 { error && <p className={ "text-red-500 text-xs pb-2.5" }>{ error }</p> }
+                { success && <p className={ "text-green-500 text-xs pb-2.5" }>{ success }</p> }
                 <button type={ "submit" } className={ "btn-primary" }>Sign Up</button>
                 <p className="text-xs text-slate-800 mt-3">
                     Already have an account? {" "}

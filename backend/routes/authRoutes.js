@@ -6,7 +6,8 @@ import {
     loginUser,
     registerUser,
     updateUserProfile,
-    handleImageUpload
+    handleImageUpload,
+    generateAdminInviteToken
 } from "../controllers/authController.js";
 
 const authRouter = express.Router();
@@ -17,5 +18,6 @@ authRouter.get("/profile", protect, getUserProfile);
 authRouter.put("/profile", protect, updateUserProfile);
 
 authRouter.post("/upload-image", upload.single("image"), handleImageUpload);
+authRouter.post("/generate-admin-invite-token", generateAdminInviteToken);
 
 export default authRouter;

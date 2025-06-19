@@ -4,6 +4,7 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
+import { verifyTransporter } from "./config/mailer.js";
 
 import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
@@ -25,6 +26,9 @@ app.use(express.json());
 
 // Connect DB
 await connectDB();
+
+// Verify Mail server
+await verifyTransporter();
 
 //  Routes
 app.use("/api/auth", authRouter);

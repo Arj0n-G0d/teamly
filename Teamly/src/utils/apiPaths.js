@@ -5,7 +5,8 @@ const API_PATHS = {
         REGISTER: "/api/auth/register",
         LOGIN: "/api/auth/login",
         GET_PROFILE: "/api/auth/profile",
-        UPLOAD_IMAGE: "/api/auth/upload-image"
+        UPLOAD_IMAGE: "/api/auth/upload-image",
+        GEN_ADMIN_INVITE_TOKEN: "/api/auth/generate-admin-invite-token"
     },
     USERS: {
         GET_ALL_USERS: "/api/users",

@@ -1,12 +1,18 @@
 // noinspection JSUnresolvedReference
 
 import User from "../models/User.js";
+import InviteToken from "../models/InviteToken.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import joi from "joi";
+import { transporter } from "../config/mailer.js";
+import getAdminInviteTemplate from "../templates/getAdminInviteTemplate.js";
 
-//  Generate JWT
+// Generate JWT
 const generateToken = (userId) => jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+// Generate Admin Invite Token
+const generateAdminToken = () => Math.floor(10000000 + Math.random() * 90000000)
 
 // User Joi Schemas
 const userRegisterSchema = joi.object({
@@ -14,7 +20,7 @@ const userRegisterSchema = joi.object({
     email: joi.string().email().required(),
     password: joi.string().min(8).required(),
     profileImageUrl: joi.string().default("").allow(""),
-    adminInviteToken: joi.string()
+    adminInviteToken: joi.string().default("").allow("")
 });
 
 const userLoginSchema = joi.object({
@@ -40,13 +46,17 @@ const registerUser = async (req, res) => {
         if(error) return res.status(400).json({ message: "Validation failed", error });
         const { name, email, password, profileImageUrl, adminInviteToken } = value;
 
-        // Check for existing Eser
+        // Check for existing User
         const existingUser = await User.findOne({ email }, null, null);
         if(existingUser) return res.status(409).json({ message: "User already exists" });
 
         // Deciding User role
         let role = "Member";
-        if(adminInviteToken === process.env.ADMIN_INVITE_TOKEN) role = "Admin";
+        const inviteToken = await InviteToken.findOne({ email }, null, null);
+        if(inviteToken) {
+            if(adminInviteToken === inviteToken.token) role = "Admin";
+            else return res.status(401).json({ message: "Invalid admin invite token" });
+        }
 
         // Hashing Password
         const hashedPass = await bcrypt.hash(password, 10);
@@ -68,6 +78,7 @@ const registerUser = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: "Server error", error });
     }
 };
@@ -160,4 +171,41 @@ const handleImageUpload = (req, res) => {
     res.status(200).json({imageUrl});
 };
 
-export { registerUser, loginUser, getUserProfile, updateUserProfile, handleImageUpload };
+// @desc Handle admin invite token generation
+// @route POST /api/auth/generate-admin-invite-token
+// @access Public
+const generateAdminInviteToken = async (req, res) => {
+    const emailSchema = joi.object({
+        email: joi.string().email()
+    });
+    const { error, value } = emailSchema.validate(req.body);
+    if(error) return res.status(400).json({ message: "Validation error", error });
+
+    const { email } = value;
+
+    // Check for existing User
+    const existingUser = await User.findOne({ email }, null, null);
+    if(existingUser) return res.status(409).json({ message: "User already exists" });
+
+    // Check for existing InviteToken
+    const randomToken = generateAdminToken();
+    let inviteToken = InviteToken.findOne({ email }, null, null);
+    if(inviteToken) await inviteToken.deleteOne();
+    inviteToken = new InviteToken({
+        email,
+        token: randomToken
+    });
+    await inviteToken.save();
+
+    // Sending mail
+    await transporter.sendMail({
+        from: `"Teamly" ${process.env.EMAIL_ID}`,
+        to: email,
+        subject: "Admin Invite Token",
+        html: getAdminInviteTemplate(randomToken)
+    });
+
+    return res.status(200).json({ inviteToken });
+};
+
+export { registerUser, loginUser, getUserProfile, updateUserProfile, handleImageUpload, generateAdminInviteToken };
