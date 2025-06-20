@@ -55,7 +55,7 @@ const registerUser = async (req, res) => {
         const inviteToken = await InviteToken.findOne({ email }, null, null);
         if(inviteToken) {
             if(adminInviteToken === inviteToken.token) role = "Admin";
-            else return res.status(401).json({ message: "Invalid admin invite token" });
+            else return res.status(400).json({ message: "Invalid admin invite token" });
         }
 
         // Hashing Password
@@ -78,7 +78,6 @@ const registerUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ message: "Server error", error });
     }
 };
@@ -96,11 +95,11 @@ const loginUser = async (req, res) => {
 
         // Get existing User (If exists)
         const user = await User.findOne({ email }, null, null);
-        if(!user) return res.status(401).json({ message: "Invalid email or password" });
+        if(!user) return res.status(400).json({ message: "Invalid email or password" });
 
         // Password Matching
         const isMatched = await bcrypt.compare(password, user.password);
-        if(!isMatched) return res.status(401).json({ message: "Invalid email or password" });
+        if(!isMatched) return res.status(400).json({ message: "Invalid email or password" });
 
         // Return User data with JWT
         res.status(200).json({
