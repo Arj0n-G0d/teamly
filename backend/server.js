@@ -10,6 +10,8 @@ import authRouter from "./routes/authRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import taskRouter from "./routes/taskRoutes.js";
 import reportRouter from "./routes/reportRoutes.js";
+import * as path from "node:path";
+import { fileURLToPath } from 'node:url';
 
 const app = express();
 
@@ -29,6 +31,12 @@ await connectDB();
 
 // Verify Mail server
 await verifyTransporter();
+
+// Serve the uploads folder
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //  Routes
 app.use("/api/auth", authRouter);

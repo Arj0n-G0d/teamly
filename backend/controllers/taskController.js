@@ -52,9 +52,6 @@ const getDashboardData = async (req, res) => {
     try {
         // Fetch Statistics
         const totalTasks = await Task.countDocuments({ });
-        const pendingTasks = await Task.countDocuments({ status: "Pending" });
-        const inProgressTasks = await Task.countDocuments({ status: "In Progress" });
-        const completedTasks = await Task.countDocuments({ status: "Completed" });
         const overDueTasks = await Task.countDocuments({
             status: { $ne: "Completed" },
             dueDate: { $lt: new Date() }
@@ -76,6 +73,7 @@ const getDashboardData = async (req, res) => {
             return acc;
         }, {});
         statusDistribution["All"] = totalTasks;
+        statusDistribution["OverDueTasks"] = overDueTasks;
 
         // Ensure all priorities are included
         const priorities = ["Low", "Moderate", "High"];
@@ -97,13 +95,6 @@ const getDashboardData = async (req, res) => {
             .limit(10).select("title status priority dueDate createdAt");
 
         res.status(200).json({
-            statistics: {
-                totalTasks,
-                pendingTasks,
-                inProgressTasks,
-                completedTasks,
-                overDueTasks
-            },
             charts: {
                 statusDistribution,
                 priorityDistribution
@@ -123,9 +114,6 @@ const getUserDashboardData = async (req, res) => {
         // Fetch Statistics
         const id = req.userId;
         const totalTasks = await Task.countDocuments({ assignedTo: id });
-        const pendingTasks = await Task.countDocuments({ assignedTo: id, status: "Pending" });
-        const inProgressTasks = await Task.countDocuments({ assignedTo: id, status: "In Progress" });
-        const completedTasks = await Task.countDocuments({ assignedTo: id, status: "Completed" });
         const overDueTasks = await Task.countDocuments({
             assignedTo: id,
             status: { $ne: "Completed" },
@@ -144,6 +132,7 @@ const getUserDashboardData = async (req, res) => {
             return acc;
         }, {});
         statusDistribution["All"] = totalTasks;
+        statusDistribution["OverDueTasks"] = overDueTasks;
 
         // Task Distribution by Priority
         const priorities = ["Low", "Moderate", "High"];
@@ -161,13 +150,6 @@ const getUserDashboardData = async (req, res) => {
             .sort({ createdAt: -1 }).limit(10).select("title status priority dueDate createdAt");
 
         res.status(200).json({
-            statistics: {
-                totalTasks,
-                pendingTasks,
-                inProgressTasks,
-                completedTasks,
-                overDueTasks
-            },
             charts: {
                 statusDistribution,
                 priorityDistribution

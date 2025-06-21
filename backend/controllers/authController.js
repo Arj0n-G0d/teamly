@@ -122,7 +122,14 @@ const getUserProfile = async (req, res) => {
     try {
         const user = await User.findById(req.userId, null, null).select("-password");
 
-        res.status(200).json(user);
+        res.status(200).json({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profileImageUrl: user.profileImageUrl,
+            token: generateToken(user._id)
+        });
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
     }
@@ -165,9 +172,10 @@ const updateUserProfile = async (req, res) => {
 // @route POST /api/auth/image-upload
 // @access Public
 const handleImageUpload = (req, res) => {
-    if(!req.file) return res.status(400).json({message: "No image uploaded"});
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
-    res.status(200).json({imageUrl});
+    let imageUrl = "";
+    if(!req.file) return res.status(200).json({imageUrl});
+    imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    res.status(200).json({ imageUrl });
 };
 
 // @desc Handle admin invite token generation

@@ -1,10 +1,11 @@
 import AuthLayout from "../../components/layouts/AuthLayout.jsx";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/inputs/Input.jsx";
 import { validateEmail } from "../../utils/helper.js";
 import axiosInstance from "../../utils/axiosInstance.js";
 import { API_PATHS } from "../../utils/apiPaths.js";
+import { UserContext } from "../../context/UserContext.jsx";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -13,6 +14,8 @@ const Login = () => {
     const [error, setError] = useState(null);
 
     const navigate = useNavigate();
+
+    const { updateUser } = useContext(UserContext);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -28,15 +31,17 @@ const Login = () => {
                 email,
                 password
             });
-            console.log(response.status);
 
             const { token, role } = response.data;
 
-            if(token) localStorage.setItem("token", token);
+            if(token) {
+                localStorage.setItem("token", token);
+                updateUser(response.data);
 
-            // Redirect based on Role
-            if(role === "Admin") navigate("/admin/dashboard");
-            else navigate("/user/dashboard");
+                // Redirect based on Role
+                if (role === "Admin") navigate("/admin/dashboard");
+                else navigate("/user/dashboard");
+            }
         } catch(error) {
             if(error.response && error.response.data.message) setError(error.response.data.message);
             else setError("Something went wrong");

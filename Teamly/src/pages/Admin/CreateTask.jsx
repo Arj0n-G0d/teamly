@@ -1,5 +1,9 @@
+import DashboardLayout from "../../components/layouts/DashboardLayout.jsx";
+
 const CreateTask = () => {
-    return <div>CreateTask</div>
+    return (
+        <DashboardLayout activeMenu={ "Create Task" }></DashboardLayout>
+    );
 };
 
 export default CreateTask;
