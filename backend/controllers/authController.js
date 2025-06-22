@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import joi from "joi";
 import { transporter } from "../config/mailer.js";
 import getAdminInviteTemplate from "../templates/getAdminInviteTemplate.js";
+import axios from "axios";
 
 // Generate JWT
 const generateToken = (userId) => jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -182,37 +183,60 @@ const handleImageUpload = (req, res) => {
 // @route POST /api/auth/generate-admin-invite-token
 // @access Public
 const generateAdminInviteToken = async (req, res) => {
-    const emailSchema = joi.object({
-        email: joi.string().email()
-    });
-    const { error, value } = emailSchema.validate(req.body);
-    if(error) return res.status(400).json({ message: "Validation error", error });
+    try {
+        const emailSchema = joi.object({
+            email: joi.string().email()
+        });
+        const { error, value } = emailSchema.validate(req.body);
+        if(error) return res.status(400).json({ message: "Validation error", error });
 
-    const { email } = value;
+        const { email } = value;
 
-    // Check for existing User
-    const existingUser = await User.findOne({ email }, null, null);
-    if(existingUser) return res.status(409).json({ message: "User already exists" });
+        // Check for existing User
+        const existingUser = await User.findOne({ email }, null, null);
+        if(existingUser) return res.status(409).json({ message: "User already exists" });
 
-    // Check for existing InviteToken
-    const randomToken = generateAdminToken();
-    let inviteToken = InviteToken.findOne({ email }, null, null);
-    if(inviteToken) await inviteToken.deleteOne();
-    inviteToken = new InviteToken({
-        email,
-        token: randomToken
-    });
-    await inviteToken.save();
+        // Check for existing InviteToken
+        const randomToken = generateAdminToken();
+        let inviteToken = InviteToken.findOne({ email }, null, null);
+        if(inviteToken) await inviteToken.deleteOne();
+        inviteToken = new InviteToken({
+            email,
+            token: randomToken
+        });
+        await inviteToken.save();
 
-    // Sending mail
-    await transporter.sendMail({
-        from: `"Teamly" ${process.env.EMAIL_ID}`,
-        to: email,
-        subject: "Admin Invite Token",
-        html: getAdminInviteTemplate(randomToken)
-    });
+        // Sending mail
+        await transporter.sendMail({
+            from: `"Teamly" ${process.env.EMAIL_ID}`,
+            to: email,
+            subject: "Admin Invite Token",
+            html: getAdminInviteTemplate(randomToken)
+        });
 
-    return res.status(200).json({ inviteToken });
+        return res.status(200).json({ inviteToken });
+    } catch(error) {
+        res.status(500).json({ message: "Server error", error });
+    }
 };
 
-export { registerUser, loginUser, getUserProfile, updateUserProfile, handleImageUpload, generateAdminInviteToken };
+// @desc Handle fake credentials generation
+// @route GET /api/auth/fake-credentials
+// @access Public
+const generateFakeCredentials = async (req, res) => {
+    try {
+        const response = await axios.get("https://random-indian-name-generator.vercel.app/api/random_name");
+        const random3Digit = Math.floor(Math.random() * 900) + 100;
+        const { firstName, lastName } = response.data;
+
+        res.status(200).json({
+            name: `${firstName} ${lastName}`,
+            email: `${firstName.toLowerCase()}.example.com`,
+            password: `${firstName.toLowerCase()}${random3Digit}`
+        });
+    } catch(error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+export { registerUser, loginUser, getUserProfile, updateUserProfile, handleImageUpload, generateAdminInviteToken, generateFakeCredentials};

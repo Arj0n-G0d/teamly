@@ -5,18 +5,6 @@ const validateEmail = (email) => {
     return regex.test(email);
 };
 
-const getDummyCredentials = async () => {
-    const response = await axiosInstance.get("https://random-indian-name-generator.vercel.app/api/random_name");
-    const random3Digit = Math.floor(Math.random() * 900) + 100;
-    const { firstName, lastName } = response.data;
-
-    return {
-        fullName: `${firstName} ${lastName}`,
-        email: `${firstName}.${lastName}.example.com`,
-        password: `${firstName}${random3Digit}`
-    };
-}
-
 const addThousandsSeparator = (num) => {
     if(num == null || isNaN(num)) return "";
 
@@ -25,4 +13,47 @@ const addThousandsSeparator = (num) => {
     return fractionalPart ? `${formattedInteger}.${fractionalPart}` : formattedInteger
 };
 
-export { validateEmail, getDummyCredentials, addThousandsSeparator };
+const getStatusBadgeColor = (status) => {
+    switch(status) {
+        case "Completed": return "bg-green-100 text-green-500 border border-green-200"
+        case "Pending": return "bg-yellow-100 text-yellow-500 border border-yellow-200"
+        case "In Progress": return "bg-cyan-100 text-cyan-500 border border-cyan-200"
+        default: return "bg-gray-100 text-gray-500 border border-gray-200"
+    }
+};
+
+const getPriorityBadgeColor = (priority) => {
+    switch(priority) {
+        case "High": return "bg-red-100 text-red-500 border border-red-200"
+        case "Moderate": return "bg-orange-100 text-orange-500 border border-orange-200"
+        case "Low": return "bg-green-100 text-green-500 border border-green-200"
+        default: return "bg-gray-100 text-gray-500 border border-gray-200"
+    }
+};
+
+const getStatusTagColor = getStatusBadgeColor;
+const getPriorityTagColor = getPriorityBadgeColor;
+
+const getStatusBorderColor = (status) => {
+    switch(status) {
+        case "Completed": return "border-green-200"
+        case "Pending": return "border-yellow-200"
+        case "In Progress": return "border-cyan-200"
+        default: return "border-gray-200"
+    }
+};
+
+const getPriorityBorderColor = (priority) => {
+    switch(priority) {
+        case "High": return "border-red-200"
+        case "Moderate": return "border-orange-200"
+        case "Low": return "border-green-200"
+        default: return "border-gray-200"
+    }
+};
+
+export { validateEmail, addThousandsSeparator,
+    getStatusBadgeColor, getPriorityBadgeColor,
+    getStatusTagColor, getPriorityTagColor,
+    getStatusBorderColor, getPriorityBorderColor
+};

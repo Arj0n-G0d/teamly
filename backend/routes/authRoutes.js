@@ -7,7 +7,8 @@ import {
     registerUser,
     updateUserProfile,
     handleImageUpload,
-    generateAdminInviteToken
+    generateAdminInviteToken,
+    generateFakeCredentials
 } from "../controllers/authController.js";
 
 const authRouter = express.Router();
@@ -19,5 +20,6 @@ authRouter.put("/profile", protect, updateUserProfile);
 
 authRouter.post("/upload-image", upload.single("image"), handleImageUpload);
 authRouter.post("/generate-admin-invite-token", generateAdminInviteToken);
+authRouter.get("/generate-fake-credentials", generateFakeCredentials);
 
 export default authRouter;

@@ -20,6 +20,7 @@ import ManageUsers from "./pages/Admin/ManageUsers.jsx";
 import UserDashboard from "./pages/User/Dashboard.jsx";
 import Tasks from "./pages/User/Tasks.jsx";
 import UserProvider, { UserContext } from "./context/UserContext.jsx";
+import { Toaster } from "react-hot-toast";
 
 const Root = () => {
   const { user, loading } = useContext(UserContext);
@@ -40,6 +41,10 @@ const App = () => {
         <div>
           <Router>
             <Routes>
+
+              {/*Default Route*/}
+              <Route path={"/"} element={<Root />} />
+
               <Route path = "/login" element = {<Login />} />
               <Route path = "/sign-up" element = {<SignUp />} />
 
@@ -57,11 +62,18 @@ const App = () => {
                 <Route path = "/user/tasks" element = {<Tasks />} />
               </Route>
 
-              {/*Default Route*/}
-              <Route path={"/"} element={<Root />} />
             </Routes>
           </Router>
         </div>
+
+        <Toaster
+          toastOptions={{
+            className:"",
+            style: {
+              fontSize: "15px"
+            }
+          }}
+        />
       </UserProvider>
   );
 }

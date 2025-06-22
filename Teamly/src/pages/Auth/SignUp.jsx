@@ -1,5 +1,5 @@
 import AuthLayout from "../../components/layouts/AuthLayout.jsx";
-import { useState, useContext } from "react";
+import {useState, useContext, useEffect} from "react";
 import { validateEmail } from "../../utils/helper.js";
 import ProfilePhotoSelector from "../../components/inputs/ProfilePhotoSelector.jsx";
 import Input from "../../components/inputs/Input.jsx";
@@ -8,6 +8,7 @@ import axiosInstance from "../../utils/axiosInstance.js";
 import { API_PATHS } from "../../utils/apiPaths.js";
 import { UserContext } from "../../context/UserContext.jsx";
 import uploadImage from "../../utils/uploadImage.js";
+import Spinner from "../../components/others/Spinner.jsx";
 
 const SignUp = () => {
     const [profilePic, setProfilePic] = useState(null);
@@ -15,13 +16,31 @@ const SignUp = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [adminInviteToken, setAdminInvite] = useState("");
+    const [placeholderCredentials, setPlaceholderCredentials] = useState({});
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
 
     const { updateUser } = useContext(UserContext);
+
+    const getFakeCredentials = async () => {
+        try {
+            setLoading(true);
+            const response = await axiosInstance.get(API_PATHS.AUTH.GEN_FAKE_CREDENTIALS);
+            setPlaceholderCredentials(response.data);
+        } catch(error) {
+            setError("Something went wrong");
+        }  finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        getFakeCredentials();
+    }, []);
 
     const handleAdminInviteCodeRequest = async (e) => {
         e.preventDefault();
@@ -78,56 +97,63 @@ const SignUp = () => {
         }
     };
 
-    return <AuthLayout>
-        <div className="lg:w-[70%] h-auto md:mb-5 md:h-full mt-5 md:mt-0 flex flex-col justify-center ">
-            <h3 className="text-xl font-semibold text-black">Create an Account</h3>
-            <p className="text-xs text-slate-700 mt-[5px] mb-6">
-                Join us today by entering your details below
-            </p>
+    return (
+        <>
+            {loading ? <Spinner />
+                : (
+                    <AuthLayout>
+                    <div className="lg:w-[70%] h-auto md:mb-5 md:h-full mt-5 md:mt-0 flex flex-col justify-center ">
+                        <h3 className="text-xl font-semibold text-black">Create an Account</h3>
+                        <p className="text-xs text-slate-700 mt-[5px] mb-6">
+                            Join us today by entering your details below
+                        </p>
 
-            <form onSubmit={ handleSignUp } className="mb-10">
-                <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                    <Input
-                        value={ name }
-                        onChange={({ target }) => setName(target.value)}
-                        label={ "Name" }
-                        placeholder={ "John" }
-                        type={ "text" }
-                    />
-                    <Input
-                        value={ email }
-                        onChange={ ({ target }) => setEmail(target.value) }
-                        placeholder={ "john@example.com" }
-                        type={ "text" }
-                        label={ "Email Address" }
-                    />
-                    <Input
-                        value={ password }
-                        onChange={ ({ target }) => setPassword(target.value) }
-                        placeholder={ "john123" }
-                        type={ "password" }
-                        label={ "Password" }
-                    />
-                    <Input
-                        value={ adminInviteToken }
-                        onChange={ ({ target }) => setAdminInvite(target.value) }
-                        placeholder={ "Admin Invite Code" }
-                        type={ "text" }
-                        label={ "Leading a Team ? " }
-                        link={ <Link className="font-medium text-primary" to={ "" } onClick={ handleAdminInviteCodeRequest }>Get Admin Invite Code</Link> }
-                    />
-                </div>
-                { error && <p className={ "text-red-500 text-xs pb-2.5" }>{ error }</p> }
-                { success && <p className={ "text-green-500 text-xs pb-2.5" }>{ success }</p> }
-                <button type={ "submit" } className={ "btn-primary" }>Sign Up</button>
-                <p className="text-xs text-slate-800 mt-3">
-                    Already have an account? {" "}
-                    <Link className="font-medium text-primary" to={ "/login" }>Login</Link>
-                </p>
-            </form>
-        </div>
-    </AuthLayout>
+                        <form onSubmit={ handleSignUp } className="mb-10">
+                            <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                                <Input
+                                    value={ name }
+                                    onChange={({ target }) => setName(target.value)}
+                                    label={ "Name" }
+                                    placeholder={ placeholderCredentials?.name }
+                                    type={ "text" }
+                                />
+                                <Input
+                                    value={ email }
+                                    onChange={ ({ target }) => setEmail(target.value) }
+                                    placeholder={ placeholderCredentials?.email }
+                                    type={ "text" }
+                                    label={ "Email Address" }
+                                />
+                                <Input
+                                    value={ password }
+                                    onChange={ ({ target }) => setPassword(target.value) }
+                                    placeholder={ placeholderCredentials?.password }
+                                    type={ "password" }
+                                    label={ "Password" }
+                                />
+                                <Input
+                                    value={ adminInviteToken }
+                                    onChange={ ({ target }) => setAdminInvite(target.value) }
+                                    placeholder={ "Admin Invite Code" }
+                                    type={ "text" }
+                                    label={ "Leading a Team ? " }
+                                    link={ <Link className="font-medium text-primary" to={ "" } onClick={ handleAdminInviteCodeRequest }>Get Admin Invite Code</Link> }
+                                />
+                            </div>
+                            { error && <p className={ "text-red-500 text-xs pb-2.5" }>{ error }</p> }
+                            { success && <p className={ "text-green-500 text-xs pb-2.5" }>{ success }</p> }
+                            <button type={ "submit" } className={ "btn-primary" }>Sign Up</button>
+                            <p className="text-xs text-slate-800 mt-3">
+                                Already have an account? {" "}
+                                <Link className="font-medium text-primary" to={ "/login" }>Login</Link>
+                            </p>
+                        </form>
+                    </div>
+                </AuthLayout>
+            ) }
+        </>
+    );
 };
 
 export default SignUp;

@@ -31,7 +31,9 @@ axiosInstance.interceptors.response.use(
         // Handle common errors globally
         if(error.response) {
             const status = error.response.status;
-            if(status === 401) window.location.href = "/login";
+            if(status === 401) {
+                window.location.href = "/login";
+            }
             else if(status === 500) console.error("Server error. Please try again.");
         }
         else if(error.code === "ECONNABORTED") console.error("Request timeout. Please try again.");
