@@ -5,7 +5,9 @@ const userSchema = new mongoose.Schema({
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         profileImageUrl: { type: String, default: "" },
-        role: { type: String, enum: ["Member", "Admin"], default: "Member" }
+        role: { type: String, enum: ["Member", "Admin"], default: "Member" },
+        admins: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+        members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
     },
     { timestamps: true }
 );

@@ -14,7 +14,8 @@ const API_PATHS = {
         GET_USER_BY_ID: (userId) => `/api/users/${userId}`,
         CREATE_USER: "/api/users",
         UPDATE_USER: (userId) => `/api/users/${userId}`,
-        DELETE_USER: (userId) => `/api/users/${userId}`
+        ADD_MEMBER: "/api/users/",
+        REMOVE_MEMBER: "/api/users/delete"
     },
     TASKS: {
         GET_DASHBOARD_DATA: "/api/tasks/dashboard-data",
@@ -29,7 +30,7 @@ const API_PATHS = {
     },
     REPORTS: {
         EXPORT_TASKS: "/api/reports/export/tasks",
-        EXPORT_USER: "/api/reports/export/users"
+        EXPORT_USERS: "/api/reports/export/users"
     }
 };
 

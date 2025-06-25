@@ -231,7 +231,7 @@ const generateFakeCredentials = async (req, res) => {
 
         res.status(200).json({
             name: `${firstName} ${lastName}`,
-            email: `${firstName.toLowerCase()}.example.com`,
+            email: `${firstName.toLowerCase()}@example.com`,
             password: `${firstName.toLowerCase()}${random3Digit}`
         });
     } catch(error) {

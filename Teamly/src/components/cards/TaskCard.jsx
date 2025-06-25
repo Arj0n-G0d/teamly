@@ -1,10 +1,10 @@
 import Progress from "../others/Progress.jsx";
 import AvatarGroup from "../others/AvatarGroup.jsx";
-import {getPriorityTagColor, getStatusBorderColor, getStatusTagColor} from "../../utils/helper.js";
+import { getPriorityTagColor, getStatusBorderColor, getStatusTagColor } from "../../utils/helper.js";
 import moment from "moment";
-import {LuPaperclip} from "react-icons/lu";
+import { LuPaperclip } from "react-icons/lu";
 
-const TaskCard = ({ title, description, priority, status, progress, createdAt, dueDate, assignedTo, attachmentCount, completedTodoCount, todoChecklist, onClick }) => {
+const TaskCard = ({ title, description, priority, status, progress, createdAt, dueDate, assignedTo, attachmentCount, completedTodoCount, todoChecklist, onClick, buttonContent, createdBy }) => {
     return (
         <div
             className="bg-white rounded-xl py-4 shadow-md shadow-gray-100 border border-gray-200/50"
@@ -28,7 +28,7 @@ const TaskCard = ({ title, description, priority, status, progress, createdAt, d
                 <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leadin-[18px]">
                     { description || " " }
                 </p>
-                <p className="text-[13px] text-gray-700/80 font-medium mt-2 mb-2 leading-[18px]">
+                <p className="text-[15px] text-gray-700/80 font-medium mt-2 mb-2 leading-[18px]">
                     Task Done: { " " }
                     <span  className="font-semibold text-gray-700">
                         { completedTodoCount } / { todoChecklist.length || 0 }
@@ -41,17 +41,32 @@ const TaskCard = ({ title, description, priority, status, progress, createdAt, d
                 <div className="flex items-center justify-between my-1">
                     <div>
                         <label className="text-xs text-gray-500">Start Date</label>
-                        <p className="text-[13px] font-medium text-gray-900">
+                        <p className="text-[15px] font-medium text-gray-900">
                             { moment(createdAt).format("Do MMM YYYY") }
                         </p>
                     </div>
                     <div>
                         <label className="text-xs text-gray-500">Due Date</label>
-                        <p className="text-[13px] font-medium text-gray-900">
+                        <p className="text-[15px] font-medium text-gray-900">
                             { moment(dueDate).format("Do MMM YYYY") }
                         </p>
                     </div>
                 </div>
+                { createdBy &&
+                    <div className="mt-4">
+                        <label className="text-xs text-gray-500">Assigned By</label>
+                        <div className="flex justify-between">
+                            <div className="flex justify-center">
+                                <div className="text-[15px] font-medium text-white bg-primary px-3 py-0.5 rounded">
+                                    { createdBy.name }
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-500">
+                                { createdBy.email }
+                            </p>
+                        </div>
+                    </div>
+                }
                 <div className="flex items-center justify-between mt-3">
                     <div className="flex gap-2">
                         <AvatarGroup avatars={ assignedTo || [] } />
@@ -63,7 +78,7 @@ const TaskCard = ({ title, description, priority, status, progress, createdAt, d
                             </div>
                         ) }
                     </div>
-                    <button className="card-btn" onClick={ onClick }>Update</button>
+                    <button className="card-btn" onClick={ onClick }>{ buttonContent }</button>
                 </div>
             </div>
         </div>

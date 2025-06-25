@@ -32,11 +32,21 @@ const SideMenu = ({ activeMenu }) => {
         <div className="w-64 h-[calc(100vh-61px)] bg-white border-r border-gray-200/50 sticky top-[61px] z-20">
             <div className="flex flex-col items-center justify-center mb-7 pt-5">
                 <div className="relative">
-                    <img className="w-20 h-20 bg-slate-400 rounded-full" src={ user?.profileImageUrl || "" } alt="Profile Picture"/>
+                    <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                        {user?.profileImageUrl ? (
+                            <img
+                                className="w-full h-full object-cover"
+                                src={user.profileImageUrl}
+                                alt="Profile"
+                            />
+                        ) : (
+                            <span className="text-sm text-gray-500"></span>
+                        )}
+                    </div>
                 </div>
 
                 {user?.role === "Admin" && (
-                    <div className="text-[13px] font-medium text-white bg-primary px-3 py-0.5 rounded mt-1">Admin</div>
+                    <div className="text-[15px] font-medium text-white bg-primary px-3 py-0.5 rounded mt-1">Admin</div>
                 )}
 
                 <h5 className="text-gray-950 font-medium leading-6 mt-3">

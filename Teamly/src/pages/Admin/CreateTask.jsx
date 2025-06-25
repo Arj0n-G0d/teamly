@@ -4,7 +4,6 @@ import axiosInstance from "../../utils/axiosInstance.js";
 import { API_PATHS } from "../../utils/apiPaths.js";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
-import moment from "moment";
 import { LuTrash2 } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import Input from "../../components/inputs/Input.jsx";
@@ -38,6 +37,7 @@ const CreateTask = () => {
     const [loading, setLoading] = useState(false);
     const [buttonLoading, setButtonLoading] = useState(false);
     const [openDeleteAlert, setOpenDeleteAlert] = useState(false);
+    const [hasTaskDataBeenCleared, setHasTaskDataBeenCleared] = useState(false);
 
     const handleValueChange = (key, value) => {
         setTaskData((prevData) => ({ ...prevData, [key]: value }));
@@ -54,7 +54,10 @@ const CreateTask = () => {
         });
     };
 
-    if(!taskId && taskData?.title !== "") clearData();
+    if(!taskId && !hasTaskDataBeenCleared) {
+        clearData();
+        setHasTaskDataBeenCleared(true);
+    }
 
     // Create a Task
     const createTask = async () => {
@@ -74,6 +77,7 @@ const CreateTask = () => {
 
             toast.success("Task Created Successfully");
             clearData();
+            navigate("/admin/manage-tasks");
         } catch(error) {
             console.error("Error creating task", error);
             toast.error("Error Creating Task");
@@ -87,7 +91,6 @@ const CreateTask = () => {
         setButtonLoading(true);
 
         try {
-            console.log("hello");
             const todoList = taskData.todoChecklist?.map((item) => {
                 const prevTodoChecklist = currentTask?.todoChecklist?.todoChecklist || [];
                 const matchedTask = prevTodoChecklist.find((todo) => todo.text === item);
@@ -103,6 +106,7 @@ const CreateTask = () => {
                 todoChecklist: todoList
             });
             toast.success("Task Updated Successfully");
+            navigate("/admin/manage-tasks");
         } catch(error) {
             console.error("Error updating task", error);
             toast.error("Error Updating Task");
@@ -139,7 +143,6 @@ const CreateTask = () => {
             return;
         }
 
-        console.log("hello");
         if(taskId) {
             await updateTask();
             return;
@@ -212,7 +215,7 @@ const CreateTask = () => {
                                     </h2>
                                     { taskId && (
                                         <button
-                                            className="flex items-center gap-1.5 text-[13px] font-meedium text-rose-500 bg-rose-50 rounded px-2 py-1 border border-rose-100 hover:border-rose-300 cursor-pointer"
+                                            className="flex items-center gap-1.5 text-[15px] font-meedium text-rose-500 bg-rose-50 rounded px-2 py-1 border border-rose-100 hover:border-rose-300 cursor-pointer"
                                             onClick={ () => setOpenDeleteAlert(true) }
                                         >
                                             <LuTrash2 className="text-base"/> Delete
@@ -277,7 +280,7 @@ const CreateTask = () => {
                                             Assign To
                                         </label>
                                         <SelectUsers
-                                            selectedUsers={ taskData.assignedTo }
+                                            selectedUsers={ taskData?.assignedTo }
                                             setSelectedUser={ (value) => {
                                                 handleValueChange("assignedTo", value);
                                             } }
@@ -310,9 +313,9 @@ const CreateTask = () => {
 
                                 { error && <p className="text-red-500 text-xs pt-4">{error}</p> }
 
-                                <div className="flex justify-end mt-7">
+                                <div className="flex w-full mt-7">
                                     <button
-                                        className="add-btn"
+                                        className="btn-primary"
                                         onClick={ handleSubmit }
                                         disabled={ buttonLoading }
                                     >
@@ -332,6 +335,7 @@ const CreateTask = () => {
                             content={ "Are you sure you want to delete this task?" }
                             onDelete={ () => deleteTask() }
                             onCancel={ () => setOpenDeleteAlert(false) }
+                            buttonContent={ "Delete" }
                         />
                     </Modal>
                 </DashboardLayout>

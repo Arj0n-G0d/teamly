@@ -9,7 +9,7 @@ import exceljs from "exceljs";
 // @access Private (Admin Only)
 const exportTaskReport = async (req, res) => {
     try {
-        const tasks = await Task.find({ }, null, null).populate("assignedTo", "name email");
+        const tasks = await Task.find({ createdBy: req.userId }, null, null).populate("assignedTo", "name email");
 
         const workbook = new exceljs.Workbook();
         const worksheet = workbook.addWorksheet("Task Report");
@@ -59,8 +59,8 @@ const exportTaskReport = async (req, res) => {
 // @access Private (Admin Only)
 const exportUserReport = async (req, res) => {
     try {
-        const users = await User.find().select("name email _id").lean();
-        const tasks = await Task.find().populate("assignedTo", "name email _id");
+        const users = await User.find({ admins: req.userId }, null, null).select("name email _id").lean();
+        const tasks = await Task.find({ createdBy: req.userId }, null, null).populate("assignedTo", "name email _id");
 
         const userTaskMap = {};
         users.forEach((user) => {
@@ -73,7 +73,6 @@ const exportUserReport = async (req, res) => {
                 completedTasks: 0
             };
         });
-
         tasks.forEach((task) => {
             if(task.assignedTo) {
                 task.assignedTo.forEach((user) => {

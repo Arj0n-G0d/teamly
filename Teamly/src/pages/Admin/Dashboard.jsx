@@ -70,16 +70,22 @@ const Dashboard = () => {
     };
 
     const onSeeMore = () => {
-        navigate('/admin/tasks');
+        navigate('/admin/manage-tasks');
     };
 
     const STATUS_COLORS = [
-        "#efb100", "#00b8db", "#00bc7d"
+        "#fcd34d", // amber-300 (Pending)
+        "#a5b4fc", // indigo-300 (In Progress)
+        "#6ee7b7"  // emerald-300 (Completed)
     ];
 
+
     const PRIORITY_COLORS = [
-        "#00c951", "#ff6900", "#fb2c36"
+        "#67e8f9", // cyan-300 (Low)
+        "#e879f9", // fuchsia-300 (Moderate)
+        "#fda4af"  // rose-300 (High)
     ];
+
 
     useEffect(() => {
         getDashboardData();
@@ -95,7 +101,7 @@ const Dashboard = () => {
                         <div>
                             <div className="col-span-3">
                                 <h2 className="text-xl md:text-2xl">{ `${greeting}! ${user?.name}` }</h2>
-                                <p className="text-xs md:text-[13px] text-gray-400 mt-1.5">
+                                <p className="text-xs md:text-[15px] text-gray-400 mt-1.5">
                                     { moment().format("dddd Do MMMM YYYY") }
                                 </p>
                             </div>
@@ -104,35 +110,35 @@ const Dashboard = () => {
                         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mt-5 ">
                             <InfoCard
                                 Icon={ BsClipboardData }
-                                label={"Total Tasks"}
+                                label={"Total MyTasks"}
                                 value={addThousandsSeparator(
                                     dashboardData?.charts?.statusDistribution?.All || 0
                                 )}
-                                color={ "bg-blue-600" }
+                                color={ "bg-primary" }
                             />
                             <InfoCard
                                 Icon={ MdPendingActions }
-                                label={"Pending Tasks"}
+                                label={"Pending MyTasks"}
                                 value={addThousandsSeparator(
                                     dashboardData?.charts?.statusDistribution?.Pending || 0
                                 )}
-                                color={ "bg-yellow-500" }
+                                color={ "bg-amber-300" }
                             />
                             <InfoCard
                                 Icon={ AiOutlineLoading3Quarters }
-                                label={"In Progress Tasks"}
+                                label={"In Progress MyTasks"}
                                 value={addThousandsSeparator(
                                     dashboardData?.charts?.statusDistribution?.InProgress || 0
                                 )}
-                                color={ "bg-cyan-500" }
+                                color={ "bg-indigo-300" }
                             />
                             <InfoCard
                                 Icon={ MdTaskAlt }
-                                label={"Completed Tasks"}
+                                label={"Completed MyTasks"}
                                 value={addThousandsSeparator(
                                     dashboardData?.charts?.statusDistribution?.Completed || 0
                                 )}
-                                color={ "bg-emerald-500" }
+                                color={ "bg-emerald-300" }
                             />
                         </div>
                     </div>

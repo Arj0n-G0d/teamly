@@ -1,5 +1,7 @@
-const Modal = ({ children, isOpen, onClose, title }) => {
+const Modal = ({ children, isOpen, onClose, isLoading = false, title }) => {
     if(!isOpen) return;
+    if(isLoading) return;
+
     return (
         <div className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-[calc(100%)] max-h-full overflow-y-auto overflow-x-hidden bg-black/50">
             <div className="relative p-4 w-full max-w-2xl max-h-full">

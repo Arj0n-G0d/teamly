@@ -7,8 +7,8 @@ const Input = ({ value, onChange, placeholder, type, label, link = null, classNa
         setShowPassword(!showPassword);
     };
     return <div>
-        { link ? <label className="text-[13px] text-slate-800">{ label } { " " } { link }</label> :
-            <label className="text-[13px] text-slate-800">{ label }</label> }
+        { link ? <label className="text-[15px] text-slate-800">{ label } { " " } { link }</label> :
+            <label className="text-[15px] text-slate-800">{ label }</label> }
         <div className={`input-box ${className}`}>
             <input
                 type={ type === "password" ? showPassword ? "text" : "password" : type }

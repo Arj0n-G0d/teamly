@@ -9,7 +9,7 @@ import TaskStatusTabs from "../../components/others/TaskStatusTabs.jsx";
 import TaskCard from "../../components/cards/TaskCard.jsx";
 import toast from "react-hot-toast";
 
-const ManageTasks = () => {
+const MyTasks = () => {
     const [allTasks, setAllTasks] = useState();
 
     const [tabs, setTabs] = useState([]);
@@ -44,8 +44,8 @@ const ManageTasks = () => {
         }
     };
 
-    const handleClick = (taskData) => {
-        navigate("/admin/create-task", { state: { taskId: taskData._id } });
+    const handleClick = (taskId) => {
+        navigate(`/user/view-task-details/${taskId}`);
     };
 
     const handleDownloadReport = async () => {
@@ -73,25 +73,17 @@ const ManageTasks = () => {
     useEffect(() => {
         getAllTasks(filterStatus);
     }, [filterStatus]);
-    console.log(allTasks);
+
     return (
         <>
             { loading ? (
                 <Spinner />
             ) : (
-                <DashboardLayout activeMenu={ "Manage Tasks" }>
+                <DashboardLayout activeMenu={ "My Tasks" }>
                     <div className="my-5">
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                             <div className="flex md:flex md:items-center items-center justify-between gap-3">
                                 <h2 className="text-xl md:text-xl font-medium">My Tasks</h2>
-
-                                <button
-                                    className="flex lg:hidden download-btn"
-                                    onClick={ handleDownloadReport }
-                                >
-                                    <LuFileSpreadsheet className="text-lg" />
-                                    Download Report
-                                </button>
                             </div>
 
                             {tabs?.[0]?.count > 0 && (
@@ -101,11 +93,6 @@ const ManageTasks = () => {
                                         activeTab={ filterStatus }
                                         setActive={ setFilterStatus }
                                     />
-
-                                    <button className="hidden lg:flex download-btn" onClick={ handleDownloadReport }>
-                                        <LuFileSpreadsheet className="text-lg" />
-                                        Download Report
-                                    </button>
                                 </div>
                             )}
                         </div>
@@ -126,8 +113,9 @@ const ManageTasks = () => {
                                 attachmentCount={ item.attachments?.length || 0 }
                                 completedTodoCount={ item?.todosCompleted || 0}
                                 todoChecklist={ item?.todoChecklist || [] }
-                                onClick={() =>  handleClick(item) }
-                                buttonContent={ "Update" }
+                                onClick={() =>  handleClick(item._id) }
+                                buttonContent= { "View" }
+                                createdBy={ item.createdBy }
                             />
                         )) }
                     </div>
@@ -137,4 +125,4 @@ const ManageTasks = () => {
     );
 };
 
-export default ManageTasks;
+export default MyTasks;

@@ -14,20 +14,28 @@ const addThousandsSeparator = (num) => {
 };
 
 const getStatusBadgeColor = (status) => {
-    switch(status) {
-        case "Completed": return "bg-green-100 text-green-500 border border-green-200"
-        case "Pending": return "bg-yellow-100 text-yellow-500 border border-yellow-200"
-        case "In Progress": return "bg-cyan-100 text-cyan-500 border border-cyan-200"
-        default: return "bg-gray-100 text-gray-500 border border-gray-200"
+    switch (status) {
+        case "Completed":
+            return "bg-emerald-100 text-emerald-700 border border-emerald-300";
+        case "In Progress":
+            return "bg-indigo-100 text-indigo-700 border border-indigo-300";
+        case "Pending":
+            return "bg-amber-100 text-amber-700 border border-amber-300";
+        default:
+            return "bg-zinc-100 text-zinc-700 border border-zinc-300";
     }
 };
 
 const getPriorityBadgeColor = (priority) => {
-    switch(priority) {
-        case "High": return "bg-red-100 text-red-500 border border-red-200"
-        case "Moderate": return "bg-orange-100 text-orange-500 border border-orange-200"
-        case "Low": return "bg-green-100 text-green-500 border border-green-200"
-        default: return "bg-gray-100 text-gray-500 border border-gray-200"
+    switch (priority) {
+        case "High":
+            return "bg-rose-100 text-rose-700 border border-rose-300";
+        case "Moderate":
+            return "bg-fuchsia-100 text-fuchsia-700 border border-fuchsia-300";
+        case "Low":
+            return "bg-cyan-100 text-cyan-700 border border-cyan-300";
+        default:
+            return "bg-zinc-100 text-zinc-700 border border-zinc-300";
     }
 };
 
@@ -35,22 +43,24 @@ const getStatusTagColor = getStatusBadgeColor;
 const getPriorityTagColor = getPriorityBadgeColor;
 
 const getStatusBorderColor = (status) => {
-    switch(status) {
-        case "Completed": return "border-green-200"
-        case "Pending": return "border-yellow-200"
-        case "In Progress": return "border-cyan-200"
-        default: return "border-gray-200"
+    switch (status) {
+        case "Completed": return "border-emerald-300";
+        case "In Progress": return "border-indigo-300";
+        case "Pending": return "border-amber-300";
+        default: return "border-zinc-300";
     }
 };
 
 const getPriorityBorderColor = (priority) => {
-    switch(priority) {
-        case "High": return "border-red-200"
-        case "Moderate": return "border-orange-200"
-        case "Low": return "border-green-200"
-        default: return "border-gray-200"
+    switch (priority) {
+        case "High": return "border-rose-300";
+        case "Moderate": return "border-fuchsia-300";
+        case "Low": return "border-cyan-300";
+        default: return "border-zinc-300";
     }
 };
+
+
 
 export { validateEmail, addThousandsSeparator,
     getStatusBadgeColor, getPriorityBadgeColor,
