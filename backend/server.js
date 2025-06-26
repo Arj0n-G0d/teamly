@@ -34,17 +34,23 @@ await verifyTransporter();
 
 const _dirname = path.dirname(".");
 
+const buildPath = path.join(_dirname, "../Teamly/dist");
+
 // Serve the uploads folder
 app.use('/uploads', express.static(path.join(_dirname, 'uploads')));
 
 // Serve the build folder
-app.use(express.static(path.join(_dirname, "../Teamly/dist")));
+app.use(express.static(buildPath));
 
 //  Routes
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/tasks", taskRouter);
 app.use("/api/reports", reportRouter);
+
+app.get("/teamly/*", (req, res) => {
+    res.sendFile(path.join(buildPath, "index.html"));
+});
 
 // Start Server
 const PORT = process.env.PORT || 5000;
