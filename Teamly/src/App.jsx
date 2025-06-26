@@ -22,6 +22,7 @@ import MyTasks from "./pages/User/MyTasks.jsx";
 import UserProvider, { UserContext } from "./context/UserContext.jsx";
 import { Toaster } from "react-hot-toast";
 import ViewTaskDetails from "./pages/User/ViewTaskDetails.jsx";
+import { BrowserRouter } from "react-router-dom";
 
 const Root = () => {
   const { user, loading } = useContext(UserContext);
@@ -37,47 +38,47 @@ const Root = () => {
 
 
 const App = () => {
-  return (
-      <UserProvider>
-        <div>
-          <Router>
-            <Routes>
+    return (
+        <UserProvider>
+            <div>
+                <BrowserRouter basename="/teamly">
+                    <Routes>
 
-              {/*Default Route*/}
-              <Route path={"/"} element={<Root />} />
+                        {/* Default Route */}
+                        <Route path="/" element={<Root />} />
 
-              <Route path = "/login" element = {<Login />} />
-              <Route path = "/sign-up" element = {<SignUp />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/sign-up" element={<SignUp />} />
 
-              {/*Admin Routes*/}
-              <Route element = {<PrivateRoute allowedRoles = {["admin"]} />}>
-                  <Route path = "/admin/dashboard" element = {<AdminDashboard />} />
-                  <Route path = "/admin/manage-tasks" element = {<ManageTasks />} />
-                  <Route path = "/admin/team-members" element = {<TeamMembers />} />
-                  <Route path = "/admin/create-task" element = {<CreateTask />} />
-              </Route>
+                        {/* Admin Routes */}
+                        <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+                            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                            <Route path="/admin/manage-tasks" element={<ManageTasks />} />
+                            <Route path="/admin/team-members" element={<TeamMembers />} />
+                            <Route path="/admin/create-task" element={<CreateTask />} />
+                        </Route>
 
-              {/*User Routes*/}
-              <Route element = {<PrivateRoute allowedRoles = {["user"]} />}>
-                  <Route path = "/user/dashboard" element = {<UserDashboard />} />
-                  <Route path = "/user/my-tasks" element = {<MyTasks />} />
-                  <Route path = "/user/view-task-details/:id" element = {<ViewTaskDetails />} />
-              </Route>
+                        {/* User Routes */}
+                        <Route element={<PrivateRoute allowedRoles={["user"]} />}>
+                            <Route path="/user/dashboard" element={<UserDashboard />} />
+                            <Route path="/user/my-tasks" element={<MyTasks />} />
+                            <Route path="/user/view-task-details/:id" element={<ViewTaskDetails />} />
+                        </Route>
 
-            </Routes>
-          </Router>
-        </div>
+                    </Routes>
+                </BrowserRouter>
+            </div>
 
-        <Toaster
-          toastOptions={{
-            className:"",
-            style: {
-              fontSize: "15px"
-            }
-          }}
-        />
-      </UserProvider>
-  );
+            <Toaster
+                toastOptions={{
+                    className: "",
+                    style: {
+                        fontSize: "15px",
+                    },
+                }}
+            />
+        </UserProvider>
+    );
 }
 
 export default App;
