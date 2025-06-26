@@ -32,7 +32,8 @@ await connectDB();
 // Verify Mail server
 await verifyTransporter();
 
-const _dirname = path.dirname(".");
+const __filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(__filename);
 
 const buildPath = path.join(_dirname, "../Teamly/dist");
 
