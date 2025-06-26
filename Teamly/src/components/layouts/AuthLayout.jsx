@@ -1,4 +1,5 @@
 import UI_IMG from "../../assets/images/auth-image.png";
+import BG_IMG from "../../assets/bg-img.jpg"
 import Logo from "../others/Logo.jsx";
 
 const AuthLayout = ({ children }) => {
@@ -9,8 +10,11 @@ const AuthLayout = ({ children }) => {
             { children }
         </div>
 
-        <div className="hidden md:flex w-[40vw] h-screen items-center justify-center bg-blue-50 bg-[url('/bg-img.jpg')] bg-cover bg-no-repeat bg-center overflow-hidden p-8">
-            <img alt="" src={ UI_IMG } className="w-64 lg:w-[90%]" />
+        <div
+            className="hidden md:flex w-[40vw] h-screen items-center justify-center bg-blue-50 bg-cover bg-no-repeat bg-center overflow-hidden p-8"
+            style={{ backgroundImage: `url(${BG_IMG})` }}
+        >
+            <img alt="" src={UI_IMG} className="w-64 lg:w-[90%]" />
         </div>
     </div>
 };
